@@ -19,6 +19,27 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
         return tv
     }()
     
+    private let labelEmptyScreen: UILabel = {
+        let les = UILabel(frame: .zero)
+        les.translatesAutoresizingMaskIntoConstraints = false
+        les.backgroundColor = UIColor.clear
+        les.text = "Fruit list is empty!"
+        les.numberOfLines = 0
+        les.font = UIFont.systemFont(ofSize: 24, weight: .bold)
+        les.textAlignment = .center
+        return les
+    }()
+    
+    func reloadTableView(){
+        if arrFruits.count == 0 {
+            tableViewFruits.alpha = 0
+            labelEmptyScreen.alpha = 1
+        }else{
+            tableViewFruits.alpha = 1
+            labelEmptyScreen.alpha = 0
+        }
+        tableViewFruits.reloadData()
+    }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -43,7 +64,7 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
         //self.navigationItem.title = "Meyveler"
         
         configureNavigationBar()
-        
+        self.view.addSubview(labelEmptyScreen)
         self.view.addSubview(tableViewFruits)
         
         tableViewFruits.topAnchor.constraint(equalTo: view.topAnchor, constant: 0).isActive = true
@@ -55,8 +76,14 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
         tableViewFruits.dataSource = self
         tableViewFruits.delegate = self
         
+        labelEmptyScreen.topAnchor.constraint(equalTo: view.topAnchor, constant: 0).isActive = true
+        labelEmptyScreen.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0).isActive = true
+        labelEmptyScreen.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0).isActive = true
+        labelEmptyScreen.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0).isActive = true
+        
         arrFruits = Fruit.all()
-        tableViewFruits.reloadData()
+        reloadTableView()
+        
         
     }
     
@@ -93,7 +120,7 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
                 fr.isFavorited = fruit.isFavorited
             }
         }
-        tableViewFruits.reloadData()
+        reloadTableView()
     }
  
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
@@ -103,7 +130,7 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == FruitItemCell.EditingStyle.delete{ //UITableViewCell
             arrFruits.remove(at: indexPath.row)
-            self.tableViewFruits.reloadData()
+            reloadTableView()
         }
     }
     //itemların hepsi silinince hiç meyve yok uyarısı versin,tablo doluysa ne varsa o görünsün
