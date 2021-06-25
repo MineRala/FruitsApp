@@ -98,12 +98,12 @@
 		E811231C2685F4F10051BF22 /* FruitsApp */ = {
 			isa = PBXGroup;
 			children = (
+				E811236F2685F8550051BF22 /* Models */,
+				E811236E2685F8390051BF22 /* Cells */,
 				E811236C2685F71E0051BF22 /* ViewControllers */,
-				E81123662685F6050051BF22 /* SceneDelegate.swift */,
 				E811236B2685F7090051BF22 /* Fonts */,
-				E811233E2685F5CB0051BF22 /* FruitItemCell.swift */,
-				E811233B2685F5B80051BF22 /* Fruit.swift */,
 				E811231D2685F4F10051BF22 /* AppDelegate.swift */,
+				E81123662685F6050051BF22 /* SceneDelegate.swift */,
 				E81123232685F4F10051BF22 /* Main.storyboard */,
 				E81123262685F4F30051BF22 /* Assets.xcassets */,
 				E81123282685F4F30051BF22 /* LaunchScreen.storyboard */,
@@ -144,6 +144,22 @@
 				E81123382685F5B10051BF22 /* FruitsDetailVC.swift */,
 			);
 			path = ViewControllers;
+			sourceTree = "<group>";
+		};
+		E811236E2685F8390051BF22 /* Cells */ = {
+			isa = PBXGroup;
+			children = (
+				E811233E2685F5CB0051BF22 /* FruitItemCell.swift */,
+			);
+			path = Cells;
+			sourceTree = "<group>";
+		};
+		E811236F2685F8550051BF22 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				E811233B2685F5B80051BF22 /* Fruit.swift */,
+			);
+			name = Models;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
