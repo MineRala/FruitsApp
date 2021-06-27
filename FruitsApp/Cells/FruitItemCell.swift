@@ -19,8 +19,9 @@ class FruitItemCell: UITableViewCell {
     private let lblTitle: UILabel = {
         let lbl = UILabel(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         lbl.translatesAutoresizingMaskIntoConstraints = false
-        lbl.font = UIFont.systemFont(ofSize: 21, weight: .bold)
+        lbl.font = UIFont(name: "ChalkboardSE-Regular", size: 21)
         lbl.textColor = .black
+        
         return lbl
     }()
     
@@ -84,7 +85,7 @@ class FruitItemCell: UITableViewCell {
     
     func updateCell(fruit:Fruit) {
         
-        imViewFruit.image = UIImage(named: fruit.image)
+        imViewFruit.image = fruit.image
         lblTitle.text = fruit.title
         lblDesc.text = fruit.desc
         

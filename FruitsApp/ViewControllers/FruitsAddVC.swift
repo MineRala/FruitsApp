@@ -13,7 +13,7 @@ protocol AddNewItemDelegate {
     func passItem(fruit: Fruit)
 }
 
-class FruitsAddVC : UIViewController {
+class FruitsAddVC : UIViewController, UIImagePickerControllerDelegate & UINavigationControllerDelegate {
     var delegate: AddNewItemDelegate!
     var fruit : Fruit!
     var arrFruits: [Fruit] = []
@@ -22,6 +22,7 @@ class FruitsAddVC : UIViewController {
         let imView = UIImageView(frame: .zero)
         imView.translatesAutoresizingMaskIntoConstraints = false
         imView.backgroundColor = .systemGray
+        imView.isUserInteractionEnabled = true
         return imView
     }()
     
@@ -99,24 +100,60 @@ class FruitsAddVC : UIViewController {
         addButton.widthAnchor.constraint(equalToConstant: 50).isActive = true
         
         self.addButton.addTarget(self, action: #selector(addButtonSaveItem), for: .touchUpInside)
+        let  tapGesture = UITapGestureRecognizer(target: self, action: #selector(imageViewTap))
+        imViewFruit.addGestureRecognizer(tapGesture)
+    }
     
+    @objc func imageViewTap(){
+        print("Tapped")
+        let pickerController = UIImagePickerController()
+        pickerController.delegate = self
+        pickerController.allowsEditing = true
+        pickerController.mediaTypes = ["public.image", "public.movie"]
+        pickerController.sourceType = .photoLibrary
+        self.present(pickerController, animated: true, completion: nil)
     }
     
     @objc func addButtonSaveItem(){
         guard validateFruits() == true else {
-            print("Validation failed!")
+            let alert = UIAlertController(title: "Error", message: inValidatedFieldsMessage(), preferredStyle: UIAlertController.Style.alert)
+            alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.cancel, handler: nil))
+            self.present(alert, animated: true, completion: nil)
             return
         }
         saveNewItem()
     }
     
+    func inValidatedFieldsMessage() -> String{
+        var str = ""
+        if imViewFruit.image == nil {
+            str += "You must choose photo."
+        }
+        if textFieldTitle.text?.count == 0 {
+            str += "You must enter fruit title."
+        }
+        if textViewDesc.text.count == 0 {
+            str += "You must enter fruit description."
+        }
+        return str
+    }
+    
     func saveNewItem(){
         fruit = Fruit()
-        fruit.image = "muz"
+        fruit.image = imViewFruit.image
         fruit.title = textFieldTitle.text!
         fruit.desc = textViewDesc.text!
         delegate.passItem(fruit: fruit)
         self.dismiss(animated: true, completion: nil)
+        
+    }
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        guard let image = info[.editedImage] as? UIImage else {
+                   return
+            }
+        imViewFruit.image = image
+        picker.dismiss(animated: true, completion: nil)
         
     }
     
@@ -125,6 +162,9 @@ class FruitsAddVC : UIViewController {
             return false
         }
         else if textViewDesc.text.count == 0{
+         return false
+        }
+        else if  imViewFruit.image == nil {
          return false
         }
         return true

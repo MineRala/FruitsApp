@@ -54,6 +54,9 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Add", style: .plain, target: self, action: #selector(addItemClicked))
+        self.navigationItem.rightBarButtonItem?.tintColor = UIColor.white
+//        self.navigationItem.rightBarButtonItem!.setTitleTextAttributes([NSAttributedString.Key.font: UIFont(name: "FONTNAME", size: 20)!], for: .Normal)
+        self.navigationItem.rightBarButtonItem?.setTitleTextAttributes([NSAttributedString.Key.font : UIFont(name:"Montserrat-Bold" , size: 20)!], for: .normal)
         setUpUI()
     }
     
@@ -61,7 +64,7 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
         self.navigationItem.title = "Meyveler"
         self.navigationController?.navigationBar.barTintColor = .systemOrange
         self.navigationController?.navigationBar.backgroundColor = .systemOrange
-        let attributes = [NSAttributedString.Key.foregroundColor:UIColor.systemRed, NSAttributedString.Key.font:UIFont(name: "Verdana", size: 20)]
+        let attributes = [NSAttributedString.Key.foregroundColor:UIColor.systemRed, NSAttributedString.Key.font : UIFont(name: "Montserrat-Regular", size: 24)!]
         self.navigationController?.navigationBar.titleTextAttributes = attributes as [NSAttributedString.Key : Any]
         
         
@@ -90,6 +93,11 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
         
         arrFruits = Fruit.all()
         reloadTableView()
+        
+        UIFont.familyNames.forEach({ familyName in
+                let fontNames = UIFont.fontNames(forFamilyName: familyName)
+                print(familyName, fontNames)
+            })
         
     }
     
