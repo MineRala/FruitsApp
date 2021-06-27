@@ -67,11 +67,16 @@ class FruitItemCell: UITableViewCell {
         lblDesc.topAnchor.constraint(equalTo: lblTitle.bottomAnchor,constant: 4).isActive = true
         lblDesc.leadingAnchor.constraint(equalTo: lblTitle.leadingAnchor,constant: 0).isActive = true
         lblDesc.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -4).isActive = true
-        lblDesc.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -64).isActive = true
+        let bottomAnchorDesc = lblDesc.bottomAnchor.constraint(lessThanOrEqualTo: self.bottomAnchor, constant: -64)
+        bottomAnchorDesc.priority = .defaultHigh
+        bottomAnchorDesc.isActive = true
         
         self.addSubview(imViewStar)
         imViewStar.topAnchor.constraint(equalTo: imViewFruit.bottomAnchor, constant: 9).isActive = true
         imViewStar.leadingAnchor.constraint(equalTo: imViewFruit.leadingAnchor, constant: 0).isActive = true
+        let bottomAnchorStar = imViewStar.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -32)
+        bottomAnchorStar.priority = .defaultLow
+        bottomAnchorStar.isActive = true
         imViewStar.heightAnchor.constraint(equalToConstant: 24).isActive = true
         imViewStar.widthAnchor.constraint(equalToConstant: 24).isActive = true
         
@@ -88,5 +93,6 @@ class FruitItemCell: UITableViewCell {
         }else{
             imViewStar.image = UIImage(systemName: "star")
         }
+        self.layoutIfNeeded()
     }
 }

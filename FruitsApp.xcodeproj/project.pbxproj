@@ -32,6 +32,7 @@
 		E81123622685F5EA0051BF22 /* Montserrat-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E81123472685F5E30051BF22 /* Montserrat-Italic.ttf */; };
 		E81123632685F5EA0051BF22 /* Montserrat-SemiBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E81123432685F5E30051BF22 /* Montserrat-SemiBoldItalic.ttf */; };
 		E81123642685F5EA0051BF22 /* Montserrat-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E811234F2685F5E30051BF22 /* Montserrat-Black.ttf */; };
+		E8151AC726862D0100767441 /* FruitsAddVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8151AC626862D0100767441 /* FruitsAddVC.swift */; };
 		FD5CCD252685FB7F0039F62D /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD5CCD242685FB7F0039F62D /* SceneDelegate.swift */; };
 /* End PBXBuildFile section */
 
@@ -63,6 +64,7 @@
 		E81123502685F5E40051BF22 /* Montserrat-ExtraBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Montserrat-ExtraBold.ttf"; sourceTree = "<group>"; };
 		E81123512685F5E40051BF22 /* Montserrat-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Montserrat-Medium.ttf"; sourceTree = "<group>"; };
 		E81123522685F5E40051BF22 /* Montserrat-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Montserrat-SemiBold.ttf"; sourceTree = "<group>"; };
+		E8151AC626862D0100767441 /* FruitsAddVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FruitsAddVC.swift; sourceTree = "<group>"; };
 		FD5CCD242685FB7F0039F62D /* SceneDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -96,12 +98,12 @@
 		E811231C2685F4F10051BF22 /* FruitsApp */ = {
 			isa = PBXGroup;
 			children = (
-				FD5CCD242685FB7F0039F62D /* SceneDelegate.swift */,
 				E811236F2685F8550051BF22 /* Models */,
 				E811236E2685F8390051BF22 /* Cells */,
 				E811236C2685F71E0051BF22 /* ViewControllers */,
 				E811236B2685F7090051BF22 /* Fonts */,
 				E811231D2685F4F10051BF22 /* AppDelegate.swift */,
+				FD5CCD242685FB7F0039F62D /* SceneDelegate.swift */,
 				E81123262685F4F30051BF22 /* Assets.xcassets */,
 				E81123282685F4F30051BF22 /* LaunchScreen.storyboard */,
 				E811232B2685F4F30051BF22 /* Info.plist */,
@@ -139,6 +141,7 @@
 			children = (
 				E81123352685F5A60051BF22 /* FruitsListVC.swift */,
 				E81123382685F5B10051BF22 /* FruitsDetailVC.swift */,
+				E8151AC626862D0100767441 /* FruitsAddVC.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -249,6 +252,7 @@
 				E811233C2685F5B80051BF22 /* Fruit.swift in Sources */,
 				FD5CCD252685FB7F0039F62D /* SceneDelegate.swift in Sources */,
 				E811231E2685F4F10051BF22 /* AppDelegate.swift in Sources */,
+				E8151AC726862D0100767441 /* FruitsAddVC.swift in Sources */,
 				E811233F2685F5CB0051BF22 /* FruitItemCell.swift in Sources */,
 				E81123362685F5A60051BF22 /* FruitsListVC.swift in Sources */,
 				E81123392685F5B10051BF22 /* FruitsDetailVC.swift in Sources */,

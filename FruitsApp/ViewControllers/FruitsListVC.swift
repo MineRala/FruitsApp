@@ -7,7 +7,12 @@
 
 import UIKit
 
-class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,FruitDetailDelegate{
+class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,FruitDetailDelegate,AddNewItemDelegate{
+    
+    func passItem(fruit: Fruit) {
+        arrFruits.append(fruit)
+        tableViewFruits.reloadData()
+    }
 
     var arrFruits: [Fruit] = []
     var canEdit : Bool = true
@@ -48,6 +53,7 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Add", style: .plain, target: self, action: #selector(addItemClicked))
         setUpUI()
     }
     
@@ -57,11 +63,12 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
         self.navigationController?.navigationBar.backgroundColor = .systemOrange
         let attributes = [NSAttributedString.Key.foregroundColor:UIColor.systemRed, NSAttributedString.Key.font:UIFont(name: "Verdana", size: 20)]
         self.navigationController?.navigationBar.titleTextAttributes = attributes as [NSAttributedString.Key : Any]
+        
+        
     }
     
     func setUpUI() {
         self.view.backgroundColor = .white
-        //self.navigationItem.title = "Meyveler"
         
         configureNavigationBar()
         self.view.addSubview(labelEmptyScreen)
@@ -84,7 +91,6 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
         arrFruits = Fruit.all()
         reloadTableView()
         
-        
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -100,9 +106,6 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
         let fruit = arrFruits[indexPath.row]
         cell.updateCell(fruit: fruit)
         return cell
-        //aamdm
-        
-        
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -121,6 +124,13 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
             }
         }
         reloadTableView()
+    }
+    
+    @objc func addItemClicked(){
+        let vc = FruitsAddVC()
+        vc.modalPresentationStyle = .formSheet
+        vc.delegate = self//aşağıdan yukarayı sürüklenen ekran
+        self.present(vc, animated: true, completion: nil)
     }
  
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
