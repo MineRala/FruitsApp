@@ -7,7 +7,12 @@
 
 import UIKit
 
-class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,FruitDetailDelegate{
+class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,FruitDetailDelegate,AddNewItemDelegate{
+    
+    func passItem(fruit: Fruit) {
+        arrFruits.append(fruit)
+        tableViewFruits.reloadData()
+    }
 
     var arrFruits: [Fruit] = []
     var canEdit : Bool = true
@@ -48,6 +53,10 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Add", style: .plain, target: self, action: #selector(addItemClicked))
+        self.navigationItem.rightBarButtonItem?.tintColor = UIColor.white
+//        self.navigationItem.rightBarButtonItem!.setTitleTextAttributes([NSAttributedString.Key.font: UIFont(name: "FONTNAME", size: 20)!], for: .Normal)
+        self.navigationItem.rightBarButtonItem?.setTitleTextAttributes([NSAttributedString.Key.font : UIFont(name:"Montserrat-Bold" , size: 20)!], for: .normal)
         setUpUI()
     }
     
@@ -55,13 +64,14 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
         self.navigationItem.title = "Meyveler"
         self.navigationController?.navigationBar.barTintColor = .systemOrange
         self.navigationController?.navigationBar.backgroundColor = .systemOrange
-        let attributes = [NSAttributedString.Key.foregroundColor:UIColor.systemRed, NSAttributedString.Key.font:UIFont(name: "Verdana", size: 20)]
+        let attributes = [NSAttributedString.Key.foregroundColor:UIColor.systemRed, NSAttributedString.Key.font : UIFont(name: "Montserrat-Regular", size: 24)!]
         self.navigationController?.navigationBar.titleTextAttributes = attributes as [NSAttributedString.Key : Any]
+        
+        
     }
     
     func setUpUI() {
         self.view.backgroundColor = .white
-        //self.navigationItem.title = "Meyveler"
         
         configureNavigationBar()
         self.view.addSubview(labelEmptyScreen)
@@ -84,6 +94,10 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
         arrFruits = Fruit.all()
         reloadTableView()
         
+        UIFont.familyNames.forEach({ familyName in
+                let fontNames = UIFont.fontNames(forFamilyName: familyName)
+                print(familyName, fontNames)
+            })
         
     }
     
@@ -100,9 +114,6 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
         let fruit = arrFruits[indexPath.row]
         cell.updateCell(fruit: fruit)
         return cell
-        //aamdm
-        
-        
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -121,6 +132,13 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
             }
         }
         reloadTableView()
+    }
+    
+    @objc func addItemClicked(){
+        let vc = FruitsAddVC()
+        vc.modalPresentationStyle = .formSheet
+        vc.delegate = self//aşağıdan yukarayı sürüklenen ekran
+        self.present(vc, animated: true, completion: nil)
     }
  
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {

@@ -100,7 +100,7 @@ class FruitsDetailVC: UIViewController{
         self.back.addTarget(self, action: #selector(backClicked), for: .touchUpInside)
         self.imViewStar.addTarget(self, action: #selector(starClicked), for: .touchUpInside)
         
-        imViewFruit.image = UIImage(named: fruit.image)
+        imViewFruit.image =  fruit.image
         lblTitle.text = fruit.title
         lblDesc.text = fruit.desc
         if fruit.isFavorited == true{
