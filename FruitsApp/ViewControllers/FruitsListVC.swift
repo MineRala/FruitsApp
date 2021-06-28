@@ -174,12 +174,50 @@ extension FruitsListVC: UITableViewDelegate, UITableViewDataSource {
         return canEdit
     }
     
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == FruitItemCell.EditingStyle.delete{ //UITableViewCell
-            arrFruits.remove(at: indexPath.row)
-            filteredFruits = arrFruits
-            reloadTableView()
+    func tableView(_ tableView: UITableView,
+                   editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
+        return .none
+    }
+    
+    func tableView(_ tableView: UITableView,
+                       trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let trash = UIContextualAction(style: .destructive,title: "Trash") { [weak self] (action, view, completionHandler) in
+            guard let self = self else{
+                completionHandler(false)
+                return
+            }
+            self.handleDelete(indexPath: indexPath)
+            completionHandler(true)
+            
         }
+        trash.backgroundColor = .systemRed
+        
+        let update = UIContextualAction(style: .normal,title: "Update") { [weak self] (action, view, completionHandler) in
+            guard let self = self else{
+                completionHandler(false)
+                return
+            }
+            self.handleUpdate(indexPath: indexPath)
+            completionHandler(true)
+        }
+        update.backgroundColor = .systemBlue
+        let configuration = UISwipeActionsConfiguration(actions: [trash,update])
+        return configuration
+    }
+    
+    private func handleDelete(indexPath: IndexPath) {
+        self.arrFruits.remove(at: indexPath.row)
+        self.filteredFruits = self.arrFruits
+        self.reloadTableView()
+    }
+    
+    private func handleUpdate(indexPath: IndexPath){
+        let vc = FruitsAddVC()
+        vc.state =  .update
+        vc.fruit = filteredFruits[indexPath.row]
+        vc.delegate = self
+        self.navigationController?.present(vc, animated: true, completion: nil)
+        
     }
 }
 
@@ -199,7 +237,12 @@ extension FruitsListVC: FruitDetailDelegate {
 //MARK: - Add new item delegate
 extension FruitsListVC: AddNewItemDelegate {
     func passItem(fruit: Fruit) {
-        arrFruits.append(fruit)
+        var newArray = arrFruits.filter { (fr) -> Bool in
+            return fr.id != fruit.id
+        }
+        newArray.append(fruit)
+        arrFruits = newArray
+        updateSearchResults(for: self.searchController)
         tableViewFruits.reloadData()
     }
 }

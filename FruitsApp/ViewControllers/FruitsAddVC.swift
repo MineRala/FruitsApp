@@ -12,10 +12,15 @@ protocol AddNewItemDelegate {
     func passItem(fruit: Fruit)
 }
 
-class FruitsAddVC : UIViewController, UIImagePickerControllerDelegate & UINavigationControllerDelegate {
+enum FruitsAddVCState{
+    case add
+    case update
+}
+
+class FruitsAddVC : UIViewController {
     var delegate: AddNewItemDelegate!
-    var fruit : Fruit!
-    var arrFruits: [Fruit] = []
+    var fruit = Fruit()
+    var state = FruitsAddVCState.add
     
     private let imViewFruit: UIImageView = {
         let imView = UIImageView(frame: .zero)
@@ -60,7 +65,10 @@ class FruitsAddVC : UIViewController, UIImagePickerControllerDelegate & UINaviga
         back.translatesAutoresizingMaskIntoConstraints = false
         return back
     }()
-    
+}
+
+//MARK: - lifecycle
+extension FruitsAddVC {
     override func viewDidLoad() {
         super.viewDidLoad()
         setUpUI()
@@ -97,18 +105,51 @@ class FruitsAddVC : UIViewController, UIImagePickerControllerDelegate & UINaviga
         self.addButton.addTarget(self, action: #selector(addButtonSaveItem), for: .touchUpInside)
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(imageViewTap))
         imViewFruit.addGestureRecognizer(tapGesture) // imViewFruit(Resim seçme) tıklanma özelliği verildi.
-    }
-    
-    @objc func addButtonSaveItem() {
-        guard validateFruits() == true else {
-            let alert = UIAlertController(title: "Error", message: inValidatedFieldsMessage(), preferredStyle: UIAlertController.Style.alert)
-            alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.cancel, handler: nil))
-            self.present(alert, animated: true, completion: nil)
-            return
+        
+        if self.state == .update{
+            imViewFruit.image = fruit.image
+            textFieldTitle.text = fruit.title
+            textViewDesc.text = fruit.desc
+            self.addButton.setTitle("Update Item", for: .normal)
+            
+        }else{
+            self.addButton.setTitle("Add Item", for: .normal)
         }
-        saveNewItem()
+        
     }
     
+}
+
+//MARK: -UIImagePickerControllerDelegate /UINavigationControllerDelegate
+extension FruitsAddVC:  UIImagePickerControllerDelegate & UINavigationControllerDelegate {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        guard let image = info[.editedImage] as? UIImage else {
+          return
+        }
+        imViewFruit.image = image
+        picker.dismiss(animated: true, completion: nil)
+    }
+}
+
+//MARK: saveNewItem
+extension FruitsAddVC {
+    func saveNewItem() {
+        if state == .add {
+            fruit = Fruit()
+            fruit.id = UUID().uuidString
+            fruit.image = imViewFruit.image
+            fruit.title = textFieldTitle.text!
+            fruit.desc = textViewDesc.text!
+            delegate.passItem(fruit: fruit)
+            self.dismiss(animated: true, completion: nil)
+        }else {
+            fruit.image = imViewFruit.image
+            fruit.title = textFieldTitle.text!
+            fruit.desc = textViewDesc.text!
+            delegate.passItem(fruit: fruit)
+            self.dismiss(animated: true, completion: nil)
+        }
+    }
     func validateFruits () -> Bool {
         if textFieldTitle.text?.count == 0 {
             return false
@@ -121,34 +162,7 @@ class FruitsAddVC : UIViewController, UIImagePickerControllerDelegate & UINaviga
         }
         return true
     }
-    
-    func saveNewItem() {
-        fruit = Fruit()
-        fruit.image = imViewFruit.image
-        fruit.title = textFieldTitle.text!
-        fruit.desc = textViewDesc.text!
-        delegate.passItem(fruit: fruit)
-        self.dismiss(animated: true, completion: nil)
-    }
-    
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        guard let image = info[.editedImage] as? UIImage else {
-          return
-        }
-        imViewFruit.image = image
-        picker.dismiss(animated: true, completion: nil)
-    }
-    
-    @objc func imageViewTap() {
-        print("Tapped")
-        let pickerController = UIImagePickerController()
-        pickerController.delegate = self
-        pickerController.allowsEditing = true
-        pickerController.mediaTypes = ["public.image", "public.movie"]
-        pickerController.sourceType = .photoLibrary
-        self.present(pickerController, animated: true, completion: nil)
-    }
-    
+
     func inValidatedFieldsMessage() -> String {
         var str = ""
         if imViewFruit.image == nil {
@@ -161,5 +175,29 @@ class FruitsAddVC : UIViewController, UIImagePickerControllerDelegate & UINaviga
             str += "You must enter fruit description."
         }
         return str
+    }
+}
+
+//MARK: - actions
+extension FruitsAddVC {
+    
+     @objc func addButtonSaveItem() {
+         guard validateFruits() == true else {
+             let alert = UIAlertController(title: "Error", message: inValidatedFieldsMessage(), preferredStyle: UIAlertController.Style.alert)
+             alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.cancel, handler: nil))
+             self.present(alert, animated: true, completion: nil)
+             return
+         }
+         saveNewItem()
+     }
+    
+    @objc func imageViewTap() {
+        print("Tapped")
+        let pickerController = UIImagePickerController()
+        pickerController.delegate = self
+        pickerController.allowsEditing = true
+        pickerController.mediaTypes = ["public.image", "public.movie"]
+        pickerController.sourceType = .photoLibrary
+        self.present(pickerController, animated: true, completion: nil)
     }
 }
