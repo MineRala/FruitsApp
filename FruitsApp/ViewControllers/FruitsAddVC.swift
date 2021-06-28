@@ -8,7 +8,6 @@
 import Foundation
 import UIKit
 
-
 protocol AddNewItemDelegate {
     func passItem(fruit: Fruit)
 }
@@ -40,20 +39,18 @@ class FruitsAddVC : UIViewController, UIImagePickerControllerDelegate & UINaviga
         return tft
     }()
     
-
-
     private let textViewDesc: UITextView = {
-        let tfd = UITextView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
-        tfd.translatesAutoresizingMaskIntoConstraints = false
-        tfd.font = UIFont.systemFont(ofSize: 16, weight: .regular)
-        tfd.backgroundColor = .white
-        tfd.textColor = .black
-        tfd.autocorrectionType = .no
-        tfd.autocapitalizationType = .none
-        tfd.layer.borderColor = UIColor.lightGray.withAlphaComponent(0.3).cgColor
-        tfd.layer.borderWidth = 1
-        tfd.layer.cornerRadius = 8
-        return tfd
+        let tvd = UITextView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        tvd.translatesAutoresizingMaskIntoConstraints = false
+        tvd.font = UIFont.systemFont(ofSize: 16, weight: .regular)
+        tvd.backgroundColor = .white
+        tvd.textColor = .black
+        tvd.autocorrectionType = .no
+        tvd.autocapitalizationType = .none
+        tvd.layer.borderColor = UIColor.lightGray.withAlphaComponent(0.3).cgColor
+        tvd.layer.borderWidth = 1
+        tvd.layer.cornerRadius = 8
+        return tvd
     }()
 
     private let addButton: UIButton = {
@@ -75,14 +72,12 @@ class FruitsAddVC : UIViewController, UIImagePickerControllerDelegate & UINaviga
         self.view.addSubview(imViewFruit)
         imViewFruit.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 16).isActive = true
         imViewFruit.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 16).isActive = true
-        //imViewFruit.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: 0).isActive = true
         imViewFruit.widthAnchor.constraint(equalToConstant: 128).isActive = true
         imViewFruit.heightAnchor.constraint(equalToConstant: 128).isActive = true
         
         self.view.addSubview(textFieldTitle)
         textFieldTitle.topAnchor.constraint(equalTo: imViewFruit.bottomAnchor, constant: 16).isActive = true
         textFieldTitle.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 16).isActive = true
-       // lblTitle.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: 0).isActive = true
         textFieldTitle.widthAnchor.constraint(equalToConstant: 300).isActive = true
         textFieldTitle.heightAnchor.constraint(equalToConstant: 32).isActive = true
 
@@ -100,21 +95,11 @@ class FruitsAddVC : UIViewController, UIImagePickerControllerDelegate & UINaviga
         addButton.widthAnchor.constraint(equalToConstant: 50).isActive = true
         
         self.addButton.addTarget(self, action: #selector(addButtonSaveItem), for: .touchUpInside)
-        let  tapGesture = UITapGestureRecognizer(target: self, action: #selector(imageViewTap))
-        imViewFruit.addGestureRecognizer(tapGesture)
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(imageViewTap))
+        imViewFruit.addGestureRecognizer(tapGesture) // imViewFruit(Resim seçme) tıklanma özelliği verildi.
     }
     
-    @objc func imageViewTap(){
-        print("Tapped")
-        let pickerController = UIImagePickerController()
-        pickerController.delegate = self
-        pickerController.allowsEditing = true
-        pickerController.mediaTypes = ["public.image", "public.movie"]
-        pickerController.sourceType = .photoLibrary
-        self.present(pickerController, animated: true, completion: nil)
-    }
-    
-    @objc func addButtonSaveItem(){
+    @objc func addButtonSaveItem() {
         guard validateFruits() == true else {
             let alert = UIAlertController(title: "Error", message: inValidatedFieldsMessage(), preferredStyle: UIAlertController.Style.alert)
             alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.cancel, handler: nil))
@@ -124,7 +109,47 @@ class FruitsAddVC : UIViewController, UIImagePickerControllerDelegate & UINaviga
         saveNewItem()
     }
     
-    func inValidatedFieldsMessage() -> String{
+    func validateFruits () -> Bool {
+        if textFieldTitle.text?.count == 0 {
+            return false
+        }
+        else if textViewDesc.text.count == 0{
+         return false
+        }
+        else if  imViewFruit.image == nil {
+         return false
+        }
+        return true
+    }
+    
+    func saveNewItem() {
+        fruit = Fruit()
+        fruit.image = imViewFruit.image
+        fruit.title = textFieldTitle.text!
+        fruit.desc = textViewDesc.text!
+        delegate.passItem(fruit: fruit)
+        self.dismiss(animated: true, completion: nil)
+    }
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        guard let image = info[.editedImage] as? UIImage else {
+          return
+        }
+        imViewFruit.image = image
+        picker.dismiss(animated: true, completion: nil)
+    }
+    
+    @objc func imageViewTap() {
+        print("Tapped")
+        let pickerController = UIImagePickerController()
+        pickerController.delegate = self
+        pickerController.allowsEditing = true
+        pickerController.mediaTypes = ["public.image", "public.movie"]
+        pickerController.sourceType = .photoLibrary
+        self.present(pickerController, animated: true, completion: nil)
+    }
+    
+    func inValidatedFieldsMessage() -> String {
         var str = ""
         if imViewFruit.image == nil {
             str += "You must choose photo."
@@ -137,38 +162,4 @@ class FruitsAddVC : UIViewController, UIImagePickerControllerDelegate & UINaviga
         }
         return str
     }
-    
-    func saveNewItem(){
-        fruit = Fruit()
-        fruit.image = imViewFruit.image
-        fruit.title = textFieldTitle.text!
-        fruit.desc = textViewDesc.text!
-        delegate.passItem(fruit: fruit)
-        self.dismiss(animated: true, completion: nil)
-        
-    }
-    
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        guard let image = info[.editedImage] as? UIImage else {
-                   return
-            }
-        imViewFruit.image = image
-        picker.dismiss(animated: true, completion: nil)
-        
-    }
-    
-    func validateFruits () -> Bool{
-        if textFieldTitle.text?.count == 0 {
-            return false
-        }
-        else if textViewDesc.text.count == 0{
-         return false
-        }
-        else if  imViewFruit.image == nil {
-         return false
-        }
-        return true
-    }
 }
-
-

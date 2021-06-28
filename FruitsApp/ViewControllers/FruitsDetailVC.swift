@@ -12,7 +12,7 @@ protocol FruitDetailDelegate {
     func fruitDetailDidTappedStar(fruit: Fruit)
 }
 
-class FruitsDetailVC: UIViewController{
+class FruitsDetailVC: UIViewController {
 
     var delegate: FruitDetailDelegate!
     var fruit : Fruit!
@@ -40,7 +40,6 @@ class FruitsDetailVC: UIViewController{
         return lbl
     }()
     
-    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.navigationController?.isNavigationBarHidden = true
@@ -60,14 +59,13 @@ class FruitsDetailVC: UIViewController{
         back.translatesAutoresizingMaskIntoConstraints = false
         return back
     }()
-    
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setUpUI()
     }
     
-    func setUpUI(){
+    func setUpUI() {
         self.view.backgroundColor = .white
         self.view.addSubview(imViewFruit)
         imViewFruit.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 0).isActive = true
@@ -108,14 +106,13 @@ class FruitsDetailVC: UIViewController{
         }else{
             imViewStar.setImage(UIImage(systemName: "star"), for: .normal)
         }
-        
     }
     
-    @objc func backClicked(){
+    @objc func backClicked() {
         self.navigationController?.popViewController(animated: true)
     }
     
-    @objc func starClicked(){
+    @objc func starClicked() {
         if fruit.isFavorited == true {
             fruit.isFavorited = false
             imViewStar.setImage(UIImage(systemName: "star"), for: .normal)

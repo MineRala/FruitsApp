@@ -7,7 +7,7 @@
 
 import UIKit
 
-class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,FruitDetailDelegate,AddNewItemDelegate{
+class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,FruitDetailDelegate,AddNewItemDelegate {
     
     func passItem(fruit: Fruit) {
         arrFruits.append(fruit)
@@ -30,12 +30,14 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
         les.backgroundColor = UIColor.clear
         les.text = "Fruit list is empty!"
         les.numberOfLines = 0
-        les.font = UIFont.systemFont(ofSize: 24, weight: .bold)
         les.textAlignment = .center
+        les.adjustsFontForContentSizeCategory = true
+        let font = UIFont(name: "Montserrat-Regular", size: 21)!
+        les.font = UIFontMetrics.default.scaledFont(for: font)
         return les
     }()
     
-    func reloadTableView(){
+    func reloadTableView() {
         if arrFruits.count == 0 {
             tableViewFruits.alpha = 0
             labelEmptyScreen.alpha = 1
@@ -44,6 +46,11 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
             labelEmptyScreen.alpha = 0
         }
         tableViewFruits.reloadData()
+    }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        self.reloadTableView()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -55,7 +62,6 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
         super.viewDidLoad()
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Add", style: .plain, target: self, action: #selector(addItemClicked))
         self.navigationItem.rightBarButtonItem?.tintColor = UIColor.white
-//        self.navigationItem.rightBarButtonItem!.setTitleTextAttributes([NSAttributedString.Key.font: UIFont(name: "FONTNAME", size: 20)!], for: .Normal)
         self.navigationItem.rightBarButtonItem?.setTitleTextAttributes([NSAttributedString.Key.font : UIFont(name:"Montserrat-Bold" , size: 20)!], for: .normal)
         setUpUI()
     }
@@ -66,8 +72,6 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
         self.navigationController?.navigationBar.backgroundColor = .systemOrange
         let attributes = [NSAttributedString.Key.foregroundColor:UIColor.systemRed, NSAttributedString.Key.font : UIFont(name: "Montserrat-Regular", size: 24)!]
         self.navigationController?.navigationBar.titleTextAttributes = attributes as [NSAttributedString.Key : Any]
-        
-        
     }
     
     func setUpUI() {
@@ -93,12 +97,6 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
         
         arrFruits = Fruit.all()
         reloadTableView()
-        
-        UIFont.familyNames.forEach({ familyName in
-                let fontNames = UIFont.fontNames(forFamilyName: familyName)
-                print(familyName, fontNames)
-            })
-        
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -134,7 +132,7 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
         reloadTableView()
     }
     
-    @objc func addItemClicked(){
+    @objc func addItemClicked() {
         let vc = FruitsAddVC()
         vc.modalPresentationStyle = .formSheet
         vc.delegate = self//aşağıdan yukarayı sürüklenen ekran
@@ -151,7 +149,4 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
             reloadTableView()
         }
     }
-    //itemların hepsi silinince hiç meyve yok uyarısı versin,tablo doluysa ne varsa o görünsün
-    // uygulama içinde Montserrat fontunu kullanıcaz
-    // add meyve sayfası textfield, text,image
 }

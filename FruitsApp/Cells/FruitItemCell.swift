@@ -19,17 +19,20 @@ class FruitItemCell: UITableViewCell {
     private let lblTitle: UILabel = {
         let lbl = UILabel(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         lbl.translatesAutoresizingMaskIntoConstraints = false
-        lbl.font = UIFont(name: "ChalkboardSE-Regular", size: 21)
+        lbl.adjustsFontForContentSizeCategory = true
+        let font = UIFont(name: "Montserrat-Bold", size: 21)!
+        lbl.font = UIFontMetrics.default.scaledFont(for: font)
         lbl.textColor = .black
-        
         return lbl
     }()
     
     private let lblDesc: UILabel = {
         let lbl = UILabel(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         lbl.translatesAutoresizingMaskIntoConstraints = false
-        lbl.font = UIFont.systemFont(ofSize: 16, weight: .regular)
         lbl.textColor = .black
+        lbl.adjustsFontForContentSizeCategory = true
+        let font = UIFont(name: "Montserrat-Regular", size: 21)!
+        lbl.font = UIFontMetrics.default.scaledFont(for: font)
         lbl.numberOfLines = 0
         return lbl
     }()
@@ -62,7 +65,7 @@ class FruitItemCell: UITableViewCell {
         lblTitle.topAnchor.constraint(equalTo: imViewFruit.topAnchor,constant: 0).isActive = true
         lblTitle.leadingAnchor.constraint(equalTo: imViewFruit.trailingAnchor,constant: 8).isActive = true
         lblTitle.trailingAnchor.constraint(equalTo: self.trailingAnchor,constant: -8).isActive = true
-        lblTitle.heightAnchor.constraint(equalToConstant: 21 ).isActive = true
+        lblTitle.heightAnchor.constraint(greaterThanOrEqualToConstant: 21 ).isActive = true
         
         self.addSubview(lblDesc)
         lblDesc.topAnchor.constraint(equalTo: lblTitle.bottomAnchor,constant: 4).isActive = true
