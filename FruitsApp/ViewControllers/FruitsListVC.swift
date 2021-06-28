@@ -8,12 +8,12 @@
 import UIKit
 
 // MARK: - Fruit List VC
-class FruitsListVC: UIViewController {
+class FruitsListVC: UIViewController, UISearchBarDelegate {
     
     private var filteredFruits: [Fruit] = []
     private var arrFruits: [Fruit] = []
     private var canEdit : Bool = true
-    private let searchController = UISearchController(searchResultsController: nil)
+    private let searchController = UISearchController( searchResultsController: nil)
     
     private let tableViewFruits: UITableView = {
         let tv = UITableView(frame: .zero, style: .plain)
@@ -37,6 +37,7 @@ class FruitsListVC: UIViewController {
 
 }
 
+// MARK: - set up ui
 extension FruitsListVC {
     private func configureNavigationBar()  {
         self.navigationItem.title = "Meyveler"
@@ -50,6 +51,8 @@ extension FruitsListVC {
         self.view.backgroundColor = .white
         
         configureNavigationBar()
+        self.navigationController?.navigationBar.isTranslucent = false
+        
         self.view.addSubview(labelEmptyScreen)
         self.view.addSubview(tableViewFruits)
         
@@ -66,6 +69,22 @@ extension FruitsListVC {
         labelEmptyScreen.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0).isActive = true
         labelEmptyScreen.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0).isActive = true
         labelEmptyScreen.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0).isActive = true
+        
+        /*
+        searchController.searchBar.delegate = self
+        searchController.searchBar.placeholder = "Search"
+        searchController.searchResultsUpdater = self
+        navigationItem.searchController = searchController
+        navigationItem.hidesSearchBarWhenScrolling = false
+        definesPresentationContext = true
+        */
+        searchController.searchBar.delegate = self
+        searchController.searchResultsUpdater = self
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.placeholder = "Search Fruit"
+        navigationItem.searchController = searchController
+        navigationItem.hidesSearchBarWhenScrolling = false
+        definesPresentationContext = true
         
         arrFruits = Fruit.all()
         filteredFruits = arrFruits
@@ -113,11 +132,7 @@ extension FruitsListVC {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        searchController.searchResultsUpdater = self
-        searchController.obscuresBackgroundDuringPresentation = false
-        searchController.searchBar.placeholder = "Search Fruit"
-        navigationItem.searchController = searchController
-        definesPresentationContext = true
+        
         
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Add", style: .plain, target: self, action: #selector(addItemClicked))
@@ -237,13 +252,20 @@ extension FruitsListVC: FruitDetailDelegate {
 //MARK: - Add new item delegate
 extension FruitsListVC: AddNewItemDelegate {
     func passItem(fruit: Fruit) {
-        var newArray = arrFruits.filter { (fr) -> Bool in
-            return fr.id != fruit.id
+        let index = arrFruits.firstIndex { fr -> Bool in
+            return fr.id == fruit.id
         }
-        newArray.append(fruit)
-        arrFruits = newArray
-        updateSearchResults(for: self.searchController)
-        tableViewFruits.reloadData()
+        
+        if let currentIndex = index {
+            arrFruits.remove(at: currentIndex)
+            arrFruits.insert(fruit, at: currentIndex)
+            updateSearchResults(for: self.searchController)
+            tableViewFruits.reloadData()
+        } else {
+            arrFruits.append(fruit)
+            updateSearchResults(for: self.searchController)
+            tableViewFruits.reloadData()
+        }
     }
 }
 
