@@ -31,7 +31,7 @@ class FruitItemCell: UITableViewCell {
         lbl.translatesAutoresizingMaskIntoConstraints = false
         lbl.textColor = .black
         lbl.adjustsFontForContentSizeCategory = true
-        let font = UIFont(name: "Montserrat-Regular", size: 21)!
+        let font = UIFont(name: "Montserrat-Regular", size: 15)!
         lbl.font = UIFontMetrics.default.scaledFont(for: font)
         lbl.numberOfLines = 0
         return lbl

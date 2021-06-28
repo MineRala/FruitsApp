@@ -7,38 +7,13 @@
 
 import UIKit
 
-class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,FruitDetailDelegate,AddNewItemDelegate, UINavigationControllerDelegate {
+// MARK: - Fruit List VC
+class FruitsListVC: UIViewController {
     
-    func passItem(fruit: Fruit) {
-        arrFruits.append(fruit)
-        tableViewFruits.reloadData()
-    }
-
-    var arrFruits: [Fruit] = []
-    var canEdit : Bool = true
-    let searchController = UISearchController(searchResultsController: nil)
-    var filteredFruits: [Fruit] = []
-//    let searchBar = searchController.searchBar
-//    filterContentForSearchText(searchBar.text!)
-
-    var isSearchBarEmpty: Bool {
-      return searchController.searchBar.text?.isEmpty ?? true
-    }
-    
-    var isFiltering: Bool {
-      return searchController.isActive && !isSearchBarEmpty
-    }
-    
-//    func tableView(_ tableView: UITableView,
-//                   numberOfRowsInSection section: Int) -> Int {
-//      if isFiltering {
-//        return filteredFruits.count
-//      }
-//
-//      return arrFruits.count
-//    }
-
-
+    private var filteredFruits: [Fruit] = []
+    private var arrFruits: [Fruit] = []
+    private var canEdit : Bool = true
+    private let searchController = UISearchController(searchResultsController: nil)
     
     private let tableViewFruits: UITableView = {
         let tv = UITableView(frame: .zero, style: .plain)
@@ -59,46 +34,11 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
         les.font = UIFontMetrics.default.scaledFont(for: font)
         return les
     }()
-    
-    func reloadTableView() {
-        if filteredFruits.count == 0 {
-            tableViewFruits.alpha = 0
-            labelEmptyScreen.alpha = 1
-        }else{
-            tableViewFruits.alpha = 1
-            labelEmptyScreen.alpha = 0
-        }
-        tableViewFruits.reloadData()
-    }
-    
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        self.reloadTableView()
-    }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        self.navigationController?.isNavigationBarHidden = false
-    }
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        searchController.searchResultsUpdater = self
-        searchController.obscuresBackgroundDuringPresentation = false
-        searchController.searchBar.placeholder = "Search Fruit"
-        navigationItem.searchController = searchController
-        definesPresentationContext = true
-        self.navigationController?.delegate = self
-        
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Add", style: .plain, target: self, action: #selector(addItemClicked))
-        self.navigationItem.rightBarButtonItem?.tintColor = UIColor.white
-        self.navigationItem.rightBarButtonItem?.setTitleTextAttributes([NSAttributedString.Key.font : UIFont(name:"Montserrat-Bold" , size: 20)!], for: .normal)
-        
-        setUpUI()
-    }
-    
-    func configureNavigationBar()  {
+}
+
+extension FruitsListVC {
+    private func configureNavigationBar()  {
         self.navigationItem.title = "Meyveler"
         self.navigationController?.navigationBar.barTintColor = .systemOrange
         self.navigationController?.navigationBar.backgroundColor = .systemOrange
@@ -106,7 +46,7 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
         self.navigationController?.navigationBar.titleTextAttributes = attributes as [NSAttributedString.Key : Any]
     }
     
-    func setUpUI() {
+    private func setUpUI() {
         self.view.backgroundColor = .white
         
         configureNavigationBar()
@@ -132,6 +72,81 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
         reloadTableView()
     }
     
+}
+
+extension FruitsListVC {
+    private func reloadTableView() {
+        if filteredFruits.count == 0 {
+            tableViewFruits.alpha = 0
+            labelEmptyScreen.alpha = 1
+        }else{
+            tableViewFruits.alpha = 1
+            labelEmptyScreen.alpha = 0
+        }
+        tableViewFruits.reloadData()
+    }
+}
+
+// MARK: - actions
+extension FruitsListVC {
+    @objc func addItemClicked() {
+        let vc = FruitsAddVC()
+        vc.modalPresentationStyle = .formSheet
+        vc.delegate = self//aşağıdan yukarayı sürüklenen ekran
+        self.present(vc, animated: true, completion: nil)
+    }
+}
+
+
+// MARK: - lifecycle
+extension FruitsListVC {
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        self.reloadTableView()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.navigationController?.isNavigationBarHidden = false
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        searchController.searchResultsUpdater = self
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.placeholder = "Search Fruit"
+        navigationItem.searchController = searchController
+        definesPresentationContext = true
+        
+        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Add", style: .plain, target: self, action: #selector(addItemClicked))
+        self.navigationItem.rightBarButtonItem?.tintColor = UIColor.white
+        self.navigationItem.rightBarButtonItem?.setTitleTextAttributes([NSAttributedString.Key.font : UIFont(name:"Montserrat-Bold" , size: 20)!], for: .normal)
+        
+        setUpUI()
+    }
+}
+
+// MARK: - UISearchResultsUpdating
+extension FruitsListVC: UISearchResultsUpdating {
+  func updateSearchResults(for searchController: UISearchController) {
+    guard let searchText = searchController.searchBar.text else{
+        return
+    }
+    if searchText.count == 0 {
+        filteredFruits = arrFruits
+    }else{
+        filteredFruits = arrFruits.filter({ (fruit) -> Bool in
+            return fruit.title.lowercased().contains(searchText.lowercased())
+        })
+    }
+    self.reloadTableView()
+  }
+}
+
+// MARK: - Table view delegate / datasource
+extension FruitsListVC: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return UITableView.automaticDimension
     }
@@ -155,23 +170,6 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
         self.navigationController?.pushViewController(vc, animated: true)
     }
     
-    func fruitDetailDidTappedStar(fruit: Fruit) {
-        print("fruit : \(fruit.title), is favored: \(fruit.isFavorited)")
-        filteredFruits.forEach { fr in
-            if fr.title == fruit.title {
-                fr.isFavorited = fruit.isFavorited
-            }
-        }
-        reloadTableView()
-    }
-    
-    @objc func addItemClicked() {
-        let vc = FruitsAddVC()
-        vc.modalPresentationStyle = .formSheet
-        vc.delegate = self//aşağıdan yukarayı sürüklenen ekran
-        self.present(vc, animated: true, completion: nil)
-    }
- 
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         return canEdit
     }
@@ -185,24 +183,28 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
     }
 }
 
-
-extension FruitsListVC: UISearchResultsUpdating {
-  func updateSearchResults(for searchController: UISearchController) {
-    guard let searchText = searchController.searchBar.text else{
-        return
+// MARK: - Fruit detail delegate
+extension FruitsListVC: FruitDetailDelegate {
+    func fruitDetailDidTappedStar(fruit: Fruit) {
+        print("fruit : \(fruit.title), is favored: \(fruit.isFavorited)")
+        filteredFruits.forEach { fr in
+            if fr.title == fruit.title {
+                fr.isFavorited = fruit.isFavorited
+            }
+        }
+        reloadTableView()
     }
-    if searchText.count == 0 {
-        filteredFruits = arrFruits
-    }else{
-        filteredFruits = arrFruits.filter({ (fruit) -> Bool in
-            return fruit.title.lowercased().contains(searchText.lowercased())
-        })
-    }
-    self.reloadTableView()
-  }
 }
 
+//MARK: - Add new item delegate
+extension FruitsListVC: AddNewItemDelegate {
+    func passItem(fruit: Fruit) {
+        arrFruits.append(fruit)
+        tableViewFruits.reloadData()
+    }
+}
 
+// MARK: - navigation bar delegate
 extension FruitsListVC: UINavigationBarDelegate {
   func position(for bar: UIBarPositioning) -> UIBarPosition {
     return .topAttached
