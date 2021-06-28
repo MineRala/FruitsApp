@@ -7,7 +7,7 @@
 
 import UIKit
 
-class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,FruitDetailDelegate,AddNewItemDelegate{
+class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,FruitDetailDelegate,AddNewItemDelegate, UINavigationControllerDelegate {
     
     func passItem(fruit: Fruit) {
         arrFruits.append(fruit)
@@ -16,7 +16,30 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
 
     var arrFruits: [Fruit] = []
     var canEdit : Bool = true
- 
+    let searchController = UISearchController(searchResultsController: nil)
+    var filteredFruits: [Fruit] = []
+//    let searchBar = searchController.searchBar
+//    filterContentForSearchText(searchBar.text!)
+
+    var isSearchBarEmpty: Bool {
+      return searchController.searchBar.text?.isEmpty ?? true
+    }
+    
+    var isFiltering: Bool {
+      return searchController.isActive && !isSearchBarEmpty
+    }
+    
+//    func tableView(_ tableView: UITableView,
+//                   numberOfRowsInSection section: Int) -> Int {
+//      if isFiltering {
+//        return filteredFruits.count
+//      }
+//
+//      return arrFruits.count
+//    }
+
+
+    
     private let tableViewFruits: UITableView = {
         let tv = UITableView(frame: .zero, style: .plain)
         tv.translatesAutoresizingMaskIntoConstraints = false
@@ -30,13 +53,15 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
         les.backgroundColor = UIColor.clear
         les.text = "Fruit list is empty!"
         les.numberOfLines = 0
-        les.font = UIFont.systemFont(ofSize: 24, weight: .bold)
         les.textAlignment = .center
+        les.adjustsFontForContentSizeCategory = true
+        let font = UIFont(name: "Montserrat-Regular", size: 21)!
+        les.font = UIFontMetrics.default.scaledFont(for: font)
         return les
     }()
     
-    func reloadTableView(){
-        if arrFruits.count == 0 {
+    func reloadTableView() {
+        if filteredFruits.count == 0 {
             tableViewFruits.alpha = 0
             labelEmptyScreen.alpha = 1
         }else{
@@ -46,6 +71,11 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
         tableViewFruits.reloadData()
     }
     
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        self.reloadTableView()
+    }
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.navigationController?.isNavigationBarHidden = false
@@ -53,10 +83,18 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        searchController.searchResultsUpdater = self
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.placeholder = "Search Fruit"
+        navigationItem.searchController = searchController
+        definesPresentationContext = true
+        self.navigationController?.delegate = self
+        
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Add", style: .plain, target: self, action: #selector(addItemClicked))
         self.navigationItem.rightBarButtonItem?.tintColor = UIColor.white
-//        self.navigationItem.rightBarButtonItem!.setTitleTextAttributes([NSAttributedString.Key.font: UIFont(name: "FONTNAME", size: 20)!], for: .Normal)
         self.navigationItem.rightBarButtonItem?.setTitleTextAttributes([NSAttributedString.Key.font : UIFont(name:"Montserrat-Bold" , size: 20)!], for: .normal)
+        
         setUpUI()
     }
     
@@ -66,8 +104,6 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
         self.navigationController?.navigationBar.backgroundColor = .systemOrange
         let attributes = [NSAttributedString.Key.foregroundColor:UIColor.systemRed, NSAttributedString.Key.font : UIFont(name: "Montserrat-Regular", size: 24)!]
         self.navigationController?.navigationBar.titleTextAttributes = attributes as [NSAttributedString.Key : Any]
-        
-        
     }
     
     func setUpUI() {
@@ -92,13 +128,8 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
         labelEmptyScreen.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0).isActive = true
         
         arrFruits = Fruit.all()
+        filteredFruits = arrFruits
         reloadTableView()
-        
-        UIFont.familyNames.forEach({ familyName in
-                let fontNames = UIFont.fontNames(forFamilyName: familyName)
-                print(familyName, fontNames)
-            })
-        
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -106,19 +137,19 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return arrFruits.count
+        return filteredFruits.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableViewFruits.dequeueReusableCell(withIdentifier: "FruitItemCell",for: indexPath)as! FruitItemCell
-        let fruit = arrFruits[indexPath.row]
+        let fruit = filteredFruits[indexPath.row]
         cell.updateCell(fruit: fruit)
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let vc = FruitsDetailVC()
-        let fruit = arrFruits[indexPath.row]
+        let fruit = filteredFruits[indexPath.row]
         vc.fruit = fruit
         vc.delegate = self
         self.navigationController?.pushViewController(vc, animated: true)
@@ -126,7 +157,7 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
     
     func fruitDetailDidTappedStar(fruit: Fruit) {
         print("fruit : \(fruit.title), is favored: \(fruit.isFavorited)")
-        arrFruits.forEach { fr in
+        filteredFruits.forEach { fr in
             if fr.title == fruit.title {
                 fr.isFavorited = fruit.isFavorited
             }
@@ -134,7 +165,7 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
         reloadTableView()
     }
     
-    @objc func addItemClicked(){
+    @objc func addItemClicked() {
         let vc = FruitsAddVC()
         vc.modalPresentationStyle = .formSheet
         vc.delegate = self//aşağıdan yukarayı sürüklenen ekran
@@ -148,10 +179,33 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == FruitItemCell.EditingStyle.delete{ //UITableViewCell
             arrFruits.remove(at: indexPath.row)
+            filteredFruits = arrFruits
             reloadTableView()
         }
     }
-    //itemların hepsi silinince hiç meyve yok uyarısı versin,tablo doluysa ne varsa o görünsün
-    // uygulama içinde Montserrat fontunu kullanıcaz
-    // add meyve sayfası textfield, text,image
 }
+
+
+extension FruitsListVC: UISearchResultsUpdating {
+  func updateSearchResults(for searchController: UISearchController) {
+    guard let searchText = searchController.searchBar.text else{
+        return
+    }
+    if searchText.count == 0 {
+        filteredFruits = arrFruits
+    }else{
+        filteredFruits = arrFruits.filter({ (fruit) -> Bool in
+            return fruit.title.lowercased().contains(searchText.lowercased())
+        })
+    }
+    self.reloadTableView()
+  }
+}
+
+
+extension FruitsListVC: UINavigationBarDelegate {
+  func position(for bar: UIBarPositioning) -> UIBarPosition {
+    return .topAttached
+    }
+}
+
