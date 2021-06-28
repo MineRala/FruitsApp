@@ -7,7 +7,7 @@
 
 import UIKit
 
-class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,FruitDetailDelegate,AddNewItemDelegate {
+class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,FruitDetailDelegate,AddNewItemDelegate, UINavigationControllerDelegate {
     
     func passItem(fruit: Fruit) {
         arrFruits.append(fruit)
@@ -16,7 +16,30 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
 
     var arrFruits: [Fruit] = []
     var canEdit : Bool = true
- 
+    let searchController = UISearchController(searchResultsController: nil)
+    var filteredFruits: [Fruit] = []
+//    let searchBar = searchController.searchBar
+//    filterContentForSearchText(searchBar.text!)
+
+    var isSearchBarEmpty: Bool {
+      return searchController.searchBar.text?.isEmpty ?? true
+    }
+    
+    var isFiltering: Bool {
+      return searchController.isActive && !isSearchBarEmpty
+    }
+    
+//    func tableView(_ tableView: UITableView,
+//                   numberOfRowsInSection section: Int) -> Int {
+//      if isFiltering {
+//        return filteredFruits.count
+//      }
+//
+//      return arrFruits.count
+//    }
+
+
+    
     private let tableViewFruits: UITableView = {
         let tv = UITableView(frame: .zero, style: .plain)
         tv.translatesAutoresizingMaskIntoConstraints = false
@@ -38,7 +61,7 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
     }()
     
     func reloadTableView() {
-        if arrFruits.count == 0 {
+        if filteredFruits.count == 0 {
             tableViewFruits.alpha = 0
             labelEmptyScreen.alpha = 1
         }else{
@@ -52,7 +75,7 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
         super.traitCollectionDidChange(previousTraitCollection)
         self.reloadTableView()
     }
-    
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.navigationController?.isNavigationBarHidden = false
@@ -60,9 +83,18 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        searchController.searchResultsUpdater = self
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.placeholder = "Search Fruit"
+        navigationItem.searchController = searchController
+        definesPresentationContext = true
+        self.navigationController?.delegate = self
+        
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Add", style: .plain, target: self, action: #selector(addItemClicked))
         self.navigationItem.rightBarButtonItem?.tintColor = UIColor.white
         self.navigationItem.rightBarButtonItem?.setTitleTextAttributes([NSAttributedString.Key.font : UIFont(name:"Montserrat-Bold" , size: 20)!], for: .normal)
+        
         setUpUI()
     }
     
@@ -96,6 +128,7 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
         labelEmptyScreen.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0).isActive = true
         
         arrFruits = Fruit.all()
+        filteredFruits = arrFruits
         reloadTableView()
     }
     
@@ -104,19 +137,19 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return arrFruits.count
+        return filteredFruits.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableViewFruits.dequeueReusableCell(withIdentifier: "FruitItemCell",for: indexPath)as! FruitItemCell
-        let fruit = arrFruits[indexPath.row]
+        let fruit = filteredFruits[indexPath.row]
         cell.updateCell(fruit: fruit)
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let vc = FruitsDetailVC()
-        let fruit = arrFruits[indexPath.row]
+        let fruit = filteredFruits[indexPath.row]
         vc.fruit = fruit
         vc.delegate = self
         self.navigationController?.pushViewController(vc, animated: true)
@@ -124,7 +157,7 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
     
     func fruitDetailDidTappedStar(fruit: Fruit) {
         print("fruit : \(fruit.title), is favored: \(fruit.isFavorited)")
-        arrFruits.forEach { fr in
+        filteredFruits.forEach { fr in
             if fr.title == fruit.title {
                 fr.isFavorited = fruit.isFavorited
             }
@@ -146,7 +179,33 @@ class FruitsListVC: UIViewController ,UITableViewDelegate,UITableViewDataSource,
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == FruitItemCell.EditingStyle.delete{ //UITableViewCell
             arrFruits.remove(at: indexPath.row)
+            filteredFruits = arrFruits
             reloadTableView()
         }
     }
 }
+
+
+extension FruitsListVC: UISearchResultsUpdating {
+  func updateSearchResults(for searchController: UISearchController) {
+    guard let searchText = searchController.searchBar.text else{
+        return
+    }
+    if searchText.count == 0 {
+        filteredFruits = arrFruits
+    }else{
+        filteredFruits = arrFruits.filter({ (fruit) -> Bool in
+            return fruit.title.lowercased().contains(searchText.lowercased())
+        })
+    }
+    self.reloadTableView()
+  }
+}
+
+
+extension FruitsListVC: UINavigationBarDelegate {
+  func position(for bar: UIBarPositioning) -> UIBarPosition {
+    return .topAttached
+    }
+}
+
